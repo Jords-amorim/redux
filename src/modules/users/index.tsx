@@ -5,16 +5,29 @@ export default function Users() {
     const [isName, setIsName] = useState('')
     const [isEmail, setIsEmail] = useState('')
 
-    const { data: listUsers, isError, isSuccess } = userApi.useGetUsersQuery();
-    const [addUser, { data: addUserData, isLoading: isLoadingAddUserData }] = userApi.useAddUserMutation();
+    const { data: listUsers, refetch, isError, isSuccess } = userApi.useGetUsersQuery();
+    const [addUser, { isLoading: isLoadingAddUserData }] = userApi.useAddUserMutation();
+    const [deleteUser] = userApi.useDeleteUserMutation();
 
     const handleClickCreateUser = () => {
+        if (isName?.length === 0 || isEmail?.length === 0) return
+
         addUser({
             id: Math.ceil(Math.random() * 100),
             name: isName,
             username: isName,
             email: isEmail
         })
+        setIsName('')
+        setIsEmail('')
+    }
+
+    const handleClickDeleteUser = (id: number) => {
+        deleteUser(id)
+    }
+
+    const handleReFetch = () => {
+        refetch()
     }
 
     if (isError) {
@@ -70,13 +83,17 @@ export default function Users() {
                                     {item.username}
                                 </p>
                             </div>
-                            <button style={{ height: '36px', background: '#afacac', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                            <button
+                                style={{ height: '36px', background: '#afacac', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                onClick={() => handleClickDeleteUser(item.id)}
+                            >
                                 deletar
                             </button>
                         </div>
                     ))}
                 </div>
             )}
+            <button onClick={handleReFetch}>force re-fetch</button>
 
         </div>
     )
